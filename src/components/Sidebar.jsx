@@ -69,6 +69,7 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom
               title={room.roomId}
             >
               <button
+                type="button"
                 className="sidebar-room-select"
                 onClick={() => onSelectRoom(room.roomId)}
               >
@@ -83,14 +84,20 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom
               </button>
               {onLeaveRoom && (
                 <button
+                  type="button"
                   className="sidebar-room-leave"
                   title="Leave room"
                   aria-label="Leave room"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
                     const label = getRoomName(room);
                     if (window.confirm(`Leave "${label}"?`)) {
-                      onLeaveRoom(room.roomId);
+                      try {
+                        await onLeaveRoom(room.roomId);
+                      } catch (err) {
+                        console.error('Failed to leave room', err);
+                        window.alert('Failed to leave room. Please try again.');
+                      }
                     }
                   }}
                 >×</button>

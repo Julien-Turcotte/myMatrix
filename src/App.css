@@ -378,17 +378,20 @@
 }
 
 .sidebar-room-leave {
-  display: none;
   flex-shrink: 0;
   color: #585b70;
   font-size: 0.85rem;
   padding: 0 0.2rem;
   line-height: 1;
-  transition: color 0.15s;
+  transition: color 0.15s, opacity 0.15s;
+  opacity: 0;
+  visibility: hidden;
 }
 
-.sidebar-room:hover .sidebar-room-leave {
-  display: inline;
+.sidebar-room:hover .sidebar-room-leave,
+.sidebar-room:focus-within .sidebar-room-leave {
+  opacity: 1;
+  visibility: visible;
 }
 
 .sidebar-room-leave:hover {
