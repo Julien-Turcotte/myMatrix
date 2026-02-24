@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function RoomSwitcher({ rooms, onSelect, onClose }) {
   const [query, setQuery] = useState('');
+  const [selectedIdx, setSelectedIdx] = useState(0);
   const inputRef = useRef(null);
+  const itemRefs = useRef([]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -17,11 +19,25 @@ export default function RoomSwitcher({ rooms, onSelect, onClose }) {
   }, [onClose]);
 
   const filtered = rooms.filter(room => {
-    const name = (room.name || room.roomId).toLowerCase();
-    const id = room.roomId.toLowerCase();
+    const name = (room.name || '').toLowerCase();
+    // Only match on the localpart of the room ID (before the ':'), not the server part
+    const idLocalpart = room.roomId.split(':')[0].toLowerCase();
     const q = query.toLowerCase();
-    return name.includes(q) || id.includes(q);
+    return name.includes(q) || idLocalpart.includes(q);
   });
+
+  // Clamp selectedIdx to valid range
+  const activeIdx = filtered.length > 0 ? Math.min(selectedIdx, filtered.length - 1) : 0;
+
+  // Scroll active item into view when it changes
+  useEffect(() => {
+    itemRefs.current[activeIdx]?.scrollIntoView({ block: 'nearest' });
+  }, [activeIdx]);
+
+  function handleQueryChange(e) {
+    setQuery(e.target.value);
+    setSelectedIdx(0);
+  }
 
   function handleSelect(roomId) {
     onSelect(roomId);
@@ -29,8 +45,15 @@ export default function RoomSwitcher({ rooms, onSelect, onClose }) {
   }
 
   function handleKeyDown(e) {
-    if (e.key === 'Enter' && filtered.length > 0) {
-      handleSelect(filtered[0].roomId);
+    if (filtered.length === 0) return;
+    if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
+      e.preventDefault();
+      setSelectedIdx(i => (i + 1) % filtered.length);
+    } else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
+      e.preventDefault();
+      setSelectedIdx(i => (i - 1 + filtered.length) % filtered.length);
+    } else if (e.key === 'Enter') {
+      handleSelect(filtered[activeIdx].roomId);
     }
   }
 
@@ -48,7 +71,7 @@ export default function RoomSwitcher({ rooms, onSelect, onClose }) {
             className="switcher-input"
             type="text"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={handleQueryChange}
             onKeyDown={handleKeyDown}
             placeholder="fuzzy search rooms..."
             autoComplete="off"
@@ -62,7 +85,8 @@ export default function RoomSwitcher({ rooms, onSelect, onClose }) {
           {filtered.map((room, idx) => (
             <button
               key={room.roomId}
-              className={`switcher-item ${idx === 0 && query ? 'switcher-item-first' : ''}`}
+              ref={el => { itemRefs.current[idx] = el; }}
+              className={`switcher-item ${idx === activeIdx ? 'switcher-item-active' : ''}`}
               onClick={() => handleSelect(room.roomId)}
             >
               <span className="switcher-item-prefix">#</span>
