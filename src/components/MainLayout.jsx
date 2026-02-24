@@ -89,6 +89,7 @@ export default function MainLayout({
         rooms={rooms}
         activeRoomId={activeRoomId}
         onSelectRoom={onSelectRoom}
+        onLeaveRoom={onLeaveRoom}
         onLogout={onLogout}
         syncState={syncState}
         getUnreadCount={getUnreadCount}

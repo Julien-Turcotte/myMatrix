@@ -330,13 +330,13 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.28rem 0.75rem;
+  padding: 0 0.75rem;
   color: #585b70;
   text-align: left;
   transition: color 0.1s, background 0.1s;
-  gap: 0.2rem;
   font-size: 0.85rem;
   position: relative;
+  gap: 0.2rem;
 }
 
 .sidebar-room:hover {
@@ -347,6 +347,17 @@
 .sidebar-room.active {
   color: #1793D1;
   background: #1793D110;
+}
+
+.sidebar-room-select {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 0.28rem 0;
+  gap: 0.2rem;
+  min-width: 0;
+  color: inherit;
+  text-align: left;
 }
 
 .sidebar-room-prefix {
@@ -364,6 +375,24 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sidebar-room-leave {
+  display: none;
+  flex-shrink: 0;
+  color: #585b70;
+  font-size: 0.85rem;
+  padding: 0 0.2rem;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.sidebar-room:hover .sidebar-room-leave {
+  display: inline;
+}
+
+.sidebar-room-leave:hover {
+  color: #f38ba8;
 }
 
 .sidebar-badge {
