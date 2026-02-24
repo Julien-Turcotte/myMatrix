@@ -449,6 +449,17 @@
   margin-left: auto;
 }
 
+.chat-e2e-badge {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.msg-decryption-error {
+  color: #585b70;
+  font-style: italic;
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;
