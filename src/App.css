@@ -297,6 +297,21 @@
   font-size: 0.75rem;
   text-transform: none;
   letter-spacing: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-new-btn {
+  color: #585b70;
+  font-size: 0.75rem;
+  padding: 0 0.2rem;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.sidebar-new-btn:hover {
+  color: #a6e3a1;
 }
 
 .sidebar-rooms {
@@ -711,4 +726,67 @@
   white-space: nowrap;
   max-width: 200px;
   flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   NEW CONVERSATION DIALOG
+═══════════════════════════════════════ */
+.new-conv-tabs {
+  display: flex;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.new-conv-tab {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  color: #585b70;
+  font-size: 0.82rem;
+  text-align: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.new-conv-tab:hover {
+  color: #cdd6f4;
+  background: #1a1d24;
+}
+
+.new-conv-tab.active {
+  color: #1793D1;
+  border-bottom: 2px solid #1793D1;
+  margin-bottom: -1px;
+}
+
+.new-conv-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.new-conv-error {
+  padding: 0.3rem 0.75rem;
+  color: #f38ba8;
+  font-size: 0.8rem;
+}
+
+.new-conv-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #2a2d3a;
+}
+
+.new-conv-submit {
+  color: #1793D1;
+  border: 1px solid #1793D1;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.new-conv-submit:hover:not(:disabled) {
+  background: #1793D120;
+}
+
+.new-conv-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

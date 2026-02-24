@@ -27,6 +27,7 @@ export default function App() {
     sendMessage,
     joinRoom,
     leaveRoom,
+    createRoom,
     sendTyping,
     getUnreadCount,
   } = useMatrix();
@@ -66,6 +67,7 @@ export default function App() {
           onJoinRoom={joinRoom}
           onLeaveRoom={leaveRoom}
           onLogout={handleLogout}
+          onCreateRoom={createRoom}
           sendTyping={sendTyping}
           getUnreadCount={getUnreadCount}
         />

@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import ChatPanel from './ChatPanel';
 import MessageInput from './MessageInput';
 import RoomSwitcher from './RoomSwitcher';
+import NewConversationDialog from './NewConversationDialog';
 
 export default function MainLayout({
   client,
@@ -18,8 +19,10 @@ export default function MainLayout({
   onLogout,
   sendTyping,
   getUnreadCount,
+  onCreateRoom,
 }) {
   const [showSwitcher, setShowSwitcher] = useState(false);
+  const [showNewConversation, setShowNewConversation] = useState(false);
   const userId = client?.getUserId?.() || '';
   const activeRoom = rooms.find(r => r.roomId === activeRoomId) || null;
 
@@ -61,6 +64,25 @@ export default function MainLayout({
     }
   }
 
+  async function handleCreateRoom(opts) {
+    let roomId;
+    try {
+      roomId = await onCreateRoom(opts);
+    } catch (err) {
+      console.error('Error creating room:', err);
+      throw err;
+    }
+
+    if (!roomId) return;
+
+    try {
+      onSelectRoom(roomId);
+    } catch (err) {
+      console.error('Error selecting newly created room:', err);
+      throw err;
+    }
+  }
+
   return (
     <div className="main-layout">
       <Sidebar
@@ -71,6 +93,7 @@ export default function MainLayout({
         syncState={syncState}
         getUnreadCount={getUnreadCount}
         userId={userId}
+        onNewConversation={() => setShowNewConversation(true)}
       />
 
       <div className="main-content">
@@ -97,6 +120,13 @@ export default function MainLayout({
           rooms={rooms}
           onSelect={onSelectRoom}
           onClose={() => setShowSwitcher(false)}
+        />
+      )}
+
+      {showNewConversation && (
+        <NewConversationDialog
+          onClose={() => setShowNewConversation(false)}
+          onCreate={handleCreateRoom}
         />
       )}
     </div>
