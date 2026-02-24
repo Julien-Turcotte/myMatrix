@@ -23,7 +23,7 @@ export default function NewConversationDialog({ onClose, onCreate }) {
     e.preventDefault();
     const trimmed = value.trim();
     if (!trimmed) return;
-    if (mode === 'dm' && !/^@[^:]+:.+$/.test(trimmed)) {
+    if (mode === 'dm' && !/^@[a-z0-9._=\-/]+:[a-z0-9.:_\-]+$/i.test(trimmed)) {
       setError('User ID must be in format @user:server.com');
       return;
     }
