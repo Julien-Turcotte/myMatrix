@@ -1,16 +1,63 @@
-# React + Vite
+# myMatrix
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A terminal-style [Matrix](https://matrix.org/) chat client built with React and Vite.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Node.js](https://nodejs.org/) v18 or later
+- npm (bundled with Node.js)
+- A Matrix account on any homeserver (e.g. [matrix.org](https://matrix.org))
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Install dependencies
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 2. Start the development server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser. The app will hot-reload as you edit source files.
+
+### 3. Build for production
+
+```bash
+npm run build
+```
+
+The compiled output is written to the `dist/` directory.
+
+### 4. Preview the production build
+
+```bash
+npm run preview
+```
+
+## Usage
+
+1. When the app loads, a boot sequence is displayed.
+2. After the boot screen, you are taken to the **Login** page.
+3. Enter your homeserver URL (default: `https://matrix.org`), your Matrix user ID (`@user:matrix.org`), and authenticate using either:
+   - **Password** – enter your account password.
+   - **Access token** – paste an existing access token and, optionally, a device ID.
+4. Click **[ connect ]** (or press Enter) to sign in.
+5. Once connected, your room list appears on the left. Select a room to open the chat panel.
+
+### Keyboard shortcuts
+
+| Shortcut      | Action           |
+| ------------- | ---------------- |
+| `Ctrl + K`    | Open room switcher |
+| `Ctrl + Enter`| Send message     |
+| `Esc`         | Clear input      |
+
+## Linting
+
+```bash
+npm run lint
+```
