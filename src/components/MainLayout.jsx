@@ -25,6 +25,7 @@ export default function MainLayout({
   const [showNewConversation, setShowNewConversation] = useState(false);
   const userId = client?.getUserId?.() || '';
   const activeRoom = rooms.find(r => r.roomId === activeRoomId) || null;
+  const isEncrypted = activeRoomId ? (client?.isRoomEncrypted?.(activeRoomId) ?? false) : false;
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -102,6 +103,7 @@ export default function MainLayout({
           messages={messages}
           typingUsers={typingUsers}
           currentUserId={userId}
+          isEncrypted={isEncrypted}
         />
 
         <MessageInput

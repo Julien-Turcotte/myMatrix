@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from 'matrix-js-sdk';
 
+const TIMELINE_EVENT_TYPES = ['m.room.message', 'm.room.member', 'm.room.encrypted'];
+
 export function useMatrix() {
   const [client, setClient] = useState(null);
   const [syncState, setSyncState] = useState('STOPPED');
@@ -10,6 +12,8 @@ export function useMatrix() {
   const [typingUsers, setTypingUsers] = useState({});
   const [error, setError] = useState(null);
   const clientRef = useRef(null);
+  const decryptionTimersRef = useRef({});
+  const decryptedListenerRef = useRef(null);
 
   const updateRooms = useCallback((c) => {
     const r = (c || clientRef.current)?.getRooms() || [];
@@ -28,7 +32,7 @@ export function useMatrix() {
     if (!room) return;
     const timeline = room.getLiveTimeline().getEvents();
     const msgs = timeline
-      .filter(e => e.getType() === 'm.room.message' || e.getType() === 'm.room.member')
+      .filter(e => TIMELINE_EVENT_TYPES.includes(e.getType()))
       .map(e => ({
         id: e.getId(),
         type: e.getType(),
@@ -36,6 +40,7 @@ export function useMatrix() {
         content: e.getContent(),
         timestamp: e.getTs(),
         isLocal: e.status != null,
+        isDecryptionFailure: typeof e.isDecryptionFailure === 'function' ? e.isDecryptionFailure() : false,
       }));
     setMessages(prev => ({ ...prev, [roomId]: msgs }));
   }, []);
@@ -64,6 +69,26 @@ export function useMatrix() {
       }
 
       clientRef.current = matrixClient;
+
+      // initRustCrypto must be called after client creation but before startClient().
+      try {
+        await matrixClient.initRustCrypto();
+      } catch (cryptoErr) {
+        console.warn('[useMatrix] initRustCrypto failed:', cryptoErr);
+      }
+
+      // Reload messages when encrypted events are decrypted (debounced per room).
+      // Store listener reference so it can be removed on logout.
+      decryptedListenerRef.current = (event) => {
+        const roomId = event.getRoomId();
+        if (!roomId) return;
+        clearTimeout(decryptionTimersRef.current[roomId]);
+        decryptionTimersRef.current[roomId] = setTimeout(() => {
+          delete decryptionTimersRef.current[roomId];
+          loadRoomMessages(roomId, matrixClient);
+        }, 100);
+      };
+      matrixClient.on('Event.decrypted', decryptedListenerRef.current);
 
       matrixClient.on('sync', (state) => {
         setSyncState(state);
@@ -107,6 +132,10 @@ export function useMatrix() {
 
   const logout = useCallback(async () => {
     if (clientRef.current) {
+      if (decryptedListenerRef.current) {
+        clientRef.current.off('Event.decrypted', decryptedListenerRef.current);
+        decryptedListenerRef.current = null;
+      }
       try {
         await clientRef.current.logout();
       } catch (err) {
@@ -218,8 +247,14 @@ export function useMatrix() {
   useEffect(() => {
     return () => {
       if (clientRef.current) {
+        if (decryptedListenerRef.current) {
+          clientRef.current.off('Event.decrypted', decryptedListenerRef.current);
+          decryptedListenerRef.current = null;
+        }
         clientRef.current.stopClient();
       }
+      Object.values(decryptionTimersRef.current).forEach(clearTimeout);
+      decryptionTimersRef.current = {};
     };
   }, []);
 

@@ -25,6 +25,17 @@ function MessageLine({ msg, currentUserId }) {
     );
   }
 
+  if (msg.type === 'm.room.encrypted' && msg.isDecryptionFailure) {
+    return (
+      <div className="msg-line msg-fade-in">
+        <span className="msg-ts dim">[{formatTimestamp(msg.timestamp)}]</span>
+        <span className="msg-sender" style={{ color: senderColor }}>{displaySender}</span>
+        <span className="msg-sep">: </span>
+        <span className="msg-decryption-error">[unable to decrypt]</span>
+      </div>
+    );
+  }
+
   const msgType = msg.content?.msgtype;
   if (msgType === 'm.emote') {
     return (
@@ -67,7 +78,7 @@ function MessageLine({ msg, currentUserId }) {
   );
 }
 
-export default function ChatPanel({ room, messages, typingUsers, currentUserId }) {
+export default function ChatPanel({ room, messages, typingUsers, currentUserId, isEncrypted }) {
   const bottomRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -97,6 +108,11 @@ export default function ChatPanel({ room, messages, typingUsers, currentUserId }
       <div className="chat-header">
         <span className="chat-header-prefix">#</span>
         <span className="chat-header-name">{room.name || room.roomId}</span>
+        {isEncrypted && (
+          <span className="chat-e2e-badge" title="End-to-end encrypted" aria-label="End-to-end encrypted">
+            E2EE
+          </span>
+        )}
         <span className="chat-header-id dim">{room.roomId}</span>
       </div>
 
