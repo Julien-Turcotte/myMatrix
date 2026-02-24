@@ -1,0 +1,83 @@
+import { getUserColor } from '../utils/colors';
+
+const MAX_ROOM_NAME_LENGTH = 22;
+
+export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, syncState, getUnreadCount, userId }) {
+  function getRoomName(room) {
+    return room.name || room.roomId;
+  }
+
+  function getRoomPrefix(room) {
+    // Use # for public/generic rooms, @ for DMs
+    const isDirect = room.getDMInviter?.() || false;
+    return isDirect ? '@' : '#';
+  }
+
+  function getDisplayName(room) {
+    const name = getRoomName(room);
+    // Trim long names
+    return name.length > MAX_ROOM_NAME_LENGTH ? name.slice(0, MAX_ROOM_NAME_LENGTH - 1) + '…' : name;
+  }
+
+  const syncIndicator = {
+    'PREPARED': { symbol: '●', cls: 'sync-ok' },
+    'SYNCING': { symbol: '●', cls: 'sync-ok' },
+    'ERROR': { symbol: '●', cls: 'sync-err' },
+    'STOPPED': { symbol: '○', cls: 'sync-stopped' },
+  }[syncState] || { symbol: '○', cls: 'sync-stopped' };
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <span className="sidebar-logo">myMatrix</span>
+        <span className={`sidebar-sync ${syncIndicator.cls}`} title={syncState}>
+          {syncIndicator.symbol}
+        </span>
+      </div>
+
+      {userId && (
+        <div className="sidebar-user">
+          <span className="sidebar-user-prefix">$</span>
+          <span className="sidebar-user-id" style={{ color: getUserColor(userId) }}>
+            {userId.split(':')[0].replace('@', '')}
+          </span>
+        </div>
+      )}
+
+      <div className="sidebar-section-label">// rooms</div>
+
+      <nav className="sidebar-rooms">
+        {rooms.length === 0 && (
+          <div className="sidebar-empty">no rooms joined</div>
+        )}
+        {rooms.map((room, idx) => {
+          const unread = getUnreadCount(room);
+          const isActive = room.roomId === activeRoomId;
+          return (
+            <button
+              key={room.roomId}
+              className={`sidebar-room ${isActive ? 'active' : ''}`}
+              onClick={() => onSelectRoom(room.roomId)}
+              title={room.roomId}
+            >
+              <span className="sidebar-room-prefix">{getRoomPrefix(room)}</span>
+              <span className="sidebar-room-name">{getDisplayName(room)}</span>
+              {unread > 0 && (
+                <span className="sidebar-badge">{unread > 99 ? '99+' : unread}</span>
+              )}
+              {idx < 9 && (
+                <span className="sidebar-shortcut">alt+{idx + 1}</span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="sidebar-footer">
+        <button className="sidebar-logout" onClick={onLogout}>
+          [logout]
+        </button>
+      </div>
+    </aside>
+  );
+}
