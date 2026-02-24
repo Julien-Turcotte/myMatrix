@@ -162,6 +162,21 @@ export function useMatrix() {
     if (activeRoomId === roomId) setActiveRoomId(null);
   }, [activeRoomId, updateRooms]);
 
+  const createRoom = useCallback(async ({ name, isDirect, inviteUserId }) => {
+    if (!clientRef.current) throw new Error('Not connected');
+    const opts = {};
+    if (isDirect && inviteUserId) {
+      opts.invite = [inviteUserId];
+      opts.is_direct = true;
+      opts.preset = 'trusted_private_chat';
+    } else if (name) {
+      opts.name = name;
+    }
+    const result = await clientRef.current.createRoom(opts);
+    updateRooms();
+    return result.room_id;
+  }, [updateRooms]);
+
   const sendTyping = useCallback((roomId, isTyping) => {
     if (!clientRef.current) return;
     clientRef.current.sendTyping(roomId, isTyping, 3000).catch((err) => {
@@ -196,6 +211,7 @@ export function useMatrix() {
     sendEmote,
     joinRoom,
     leaveRoom,
+    createRoom,
     sendTyping,
     getUnreadCount,
   };

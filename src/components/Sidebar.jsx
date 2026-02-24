@@ -2,7 +2,7 @@ import { getUserColor } from '../utils/colors';
 
 const MAX_ROOM_NAME_LENGTH = 22;
 
-export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, syncState, getUnreadCount, userId }) {
+export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, syncState, getUnreadCount, userId, onNewConversation }) {
   function getRoomName(room) {
     return room.name || room.roomId;
   }
@@ -44,7 +44,10 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, s
         </div>
       )}
 
-      <div className="sidebar-section-label">// rooms</div>
+      <div className="sidebar-section-label">
+        <span>// rooms</span>
+        <button className="sidebar-new-btn" onClick={onNewConversation} title="New conversation">+</button>
+      </div>
 
       <nav className="sidebar-rooms">
         {rooms.length === 0 && (
