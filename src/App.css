@@ -450,9 +450,13 @@
 }
 
 .chat-e2e-badge {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  color: #a6e3a1;
+  border: 1px solid #a6e3a1;
+  padding: 0 0.25rem;
   opacity: 0.75;
   flex-shrink: 0;
+  letter-spacing: 0.05em;
 }
 
 .msg-decryption-error {

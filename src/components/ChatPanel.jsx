@@ -25,7 +25,7 @@ function MessageLine({ msg, currentUserId }) {
     );
   }
 
-  if (msg.isDecryptionFailure) {
+  if (msg.type === 'm.room.encrypted' && msg.isDecryptionFailure) {
     return (
       <div className="msg-line msg-fade-in">
         <span className="msg-ts dim">[{formatTimestamp(msg.timestamp)}]</span>
@@ -108,7 +108,11 @@ export default function ChatPanel({ room, messages, typingUsers, currentUserId, 
       <div className="chat-header">
         <span className="chat-header-prefix">#</span>
         <span className="chat-header-name">{room.name || room.roomId}</span>
-        {isEncrypted && <span className="chat-e2e-badge" title="End-to-end encrypted">🔒</span>}
+        {isEncrypted && (
+          <span className="chat-e2e-badge" title="End-to-end encrypted" aria-label="End-to-end encrypted">
+            E2EE
+          </span>
+        )}
         <span className="chat-header-id dim">{room.roomId}</span>
       </div>
 

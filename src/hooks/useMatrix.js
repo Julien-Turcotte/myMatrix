@@ -13,6 +13,7 @@ export function useMatrix() {
   const [error, setError] = useState(null);
   const clientRef = useRef(null);
   const decryptionTimersRef = useRef({});
+  const decryptedListenerRef = useRef(null);
 
   const updateRooms = useCallback((c) => {
     const r = (c || clientRef.current)?.getRooms() || [];
@@ -39,7 +40,7 @@ export function useMatrix() {
         content: e.getContent(),
         timestamp: e.getTs(),
         isLocal: e.status != null,
-        isDecryptionFailure: e.isDecryptionFailure?.() ?? false,
+        isDecryptionFailure: typeof e.isDecryptionFailure === 'function' ? e.isDecryptionFailure() : false,
       }));
     setMessages(prev => ({ ...prev, [roomId]: msgs }));
   }, []);
@@ -77,7 +78,8 @@ export function useMatrix() {
       }
 
       // Reload messages when encrypted events are decrypted (debounced per room).
-      matrixClient.on('Event.decrypted', (event) => {
+      // Store listener reference so it can be removed on logout.
+      decryptedListenerRef.current = (event) => {
         const roomId = event.getRoomId();
         if (!roomId) return;
         clearTimeout(decryptionTimersRef.current[roomId]);
@@ -85,7 +87,8 @@ export function useMatrix() {
           delete decryptionTimersRef.current[roomId];
           loadRoomMessages(roomId, matrixClient);
         }, 100);
-      });
+      };
+      matrixClient.on('Event.decrypted', decryptedListenerRef.current);
 
       matrixClient.on('sync', (state) => {
         setSyncState(state);
@@ -129,6 +132,10 @@ export function useMatrix() {
 
   const logout = useCallback(async () => {
     if (clientRef.current) {
+      if (decryptedListenerRef.current) {
+        clientRef.current.off('Event.decrypted', decryptedListenerRef.current);
+        decryptedListenerRef.current = null;
+      }
       try {
         await clientRef.current.logout();
       } catch (err) {
@@ -240,8 +247,14 @@ export function useMatrix() {
   useEffect(() => {
     return () => {
       if (clientRef.current) {
+        if (decryptedListenerRef.current) {
+          clientRef.current.off('Event.decrypted', decryptedListenerRef.current);
+          decryptedListenerRef.current = null;
+        }
         clientRef.current.stopClient();
       }
+      Object.values(decryptionTimersRef.current).forEach(clearTimeout);
+      decryptionTimersRef.current = {};
     };
   }, []);
 
