@@ -46,7 +46,13 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, s
 
       <div className="sidebar-section-label">
         <span>// rooms</span>
-        <button className="sidebar-new-btn" onClick={onNewConversation} title="New conversation">+</button>
+        <button
+          type="button"
+          className="sidebar-new-btn"
+          onClick={onNewConversation}
+          title="New conversation"
+          aria-label="New conversation"
+        >+</button>
       </div>
 
       <nav className="sidebar-rooms">

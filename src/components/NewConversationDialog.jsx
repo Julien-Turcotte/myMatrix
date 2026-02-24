@@ -23,7 +23,7 @@ export default function NewConversationDialog({ onClose, onCreate }) {
     e.preventDefault();
     const trimmed = value.trim();
     if (!trimmed) return;
-    if (mode === 'dm' && !/^@[a-z0-9._=\-/]+:[a-z0-9.:_\-]+$/i.test(trimmed)) {
+    if (mode === 'dm' && !/^@[a-z0-9._=-]+:[a-z0-9.:_-]+$/i.test(trimmed)) {
       setError('User ID must be in format @user:server.com');
       return;
     }
@@ -37,7 +37,21 @@ export default function NewConversationDialog({ onClose, onCreate }) {
       });
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to create conversation');
+      const rawMessage = (err && err.message) ? String(err.message) : '';
+      const code = err && (err.errcode || err.code);
+      let friendly = '';
+
+      if (mode === 'dm') {
+        if (code === 'M_NOT_FOUND' || /user.*not.*found/i.test(rawMessage)) {
+          friendly = 'User not found. Check the user ID and try again.';
+        } else if (code === 'M_FORBIDDEN') {
+          friendly = 'You are not allowed to start a direct message with this user.';
+        } else if (err && (err.name === 'NetworkError' || /\b(network|timeout|ENOTFOUND|ECONNREFUSED)\b/i.test(rawMessage))) {
+          friendly = 'Cannot reach the homeserver. Check your internet connection and try again.';
+        }
+      }
+
+      setError(friendly || rawMessage || 'Failed to create conversation');
     } finally {
       setLoading(false);
     }
@@ -51,14 +65,20 @@ export default function NewConversationDialog({ onClose, onCreate }) {
           <span className="switcher-hint dim">Esc to close</span>
         </div>
 
-        <div className="new-conv-tabs">
+        <div className="new-conv-tabs" role="tablist">
           <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'room'}
             className={`new-conv-tab ${mode === 'room' ? 'active' : ''}`}
             onClick={() => { setMode('room'); setValue(''); setError(''); }}
           >
             # room
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'dm'}
             className={`new-conv-tab ${mode === 'dm' ? 'active' : ''}`}
             onClick={() => { setMode('dm'); setValue(''); setError(''); }}
           >

@@ -65,8 +65,22 @@ export default function MainLayout({
   }
 
   async function handleCreateRoom(opts) {
-    const roomId = await onCreateRoom(opts);
-    if (roomId) onSelectRoom(roomId);
+    let roomId;
+    try {
+      roomId = await onCreateRoom(opts);
+    } catch (err) {
+      console.error('Error creating room:', err);
+      throw err;
+    }
+
+    if (!roomId) return;
+
+    try {
+      onSelectRoom(roomId);
+    } catch (err) {
+      console.error('Error selecting newly created room:', err);
+      throw err;
+    }
   }
 
   return (

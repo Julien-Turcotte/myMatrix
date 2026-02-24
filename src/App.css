@@ -753,6 +753,7 @@
 .new-conv-tab.active {
   color: #1793D1;
   border-bottom: 2px solid #1793D1;
+  margin-bottom: -1px;
 }
 
 .new-conv-form {

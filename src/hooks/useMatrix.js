@@ -162,6 +162,24 @@ export function useMatrix() {
     if (activeRoomId === roomId) setActiveRoomId(null);
   }, [activeRoomId, updateRooms]);
 
+  const waitForRoom = useCallback((roomId, { timeoutMs = 5000, intervalMs = 100 } = {}) => {
+    const start = Date.now();
+    return new Promise((resolve, reject) => {
+      let timerId;
+      const check = () => {
+        const room = clientRef.current?.getRoom(roomId);
+        if (room) { resolve(room); return; }
+        if (Date.now() - start >= timeoutMs) {
+          reject(new Error(`Timed out waiting for room ${roomId}`));
+          return;
+        }
+        timerId = setTimeout(check, intervalMs);
+      };
+      check();
+      return () => clearTimeout(timerId);
+    });
+  }, []);
+
   const createRoom = useCallback(async ({ name, isDirect, inviteUserId }) => {
     if (!clientRef.current) throw new Error('Not connected');
     const opts = {};
@@ -172,10 +190,19 @@ export function useMatrix() {
     } else if (name) {
       opts.name = name;
     }
+    if (Object.keys(opts).length === 0) {
+      throw new Error('createRoom requires either a name or isDirect with inviteUserId');
+    }
     const result = await clientRef.current.createRoom(opts);
+    const roomId = result.room_id;
+    try {
+      await waitForRoom(roomId);
+    } catch (e) {
+      console.warn('[useMatrix] createRoom: waiting for room failed:', e);
+    }
     updateRooms();
-    return result.room_id;
-  }, [updateRooms]);
+    return roomId;
+  }, [updateRooms, waitForRoom]);
 
   const sendTyping = useCallback((roomId, isTyping) => {
     if (!clientRef.current) return;
