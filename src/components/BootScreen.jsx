@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const BOOT_LINES = [
-  { text: 'myMatrix v0.1.0 -- terminal client', delay: 0 },
+  { text: `myMatrix v${__APP_VERSION__} -- terminal client`, delay: 0 },
   { text: '', delay: 200 },
   { text: 'Initializing Matrix Client...', delay: 400 },
   { text: 'Loading cryptographic modules...', delay: 700 },

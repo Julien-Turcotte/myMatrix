@@ -109,7 +109,9 @@ export function useMatrix() {
     if (clientRef.current) {
       try {
         await clientRef.current.logout();
-      } catch (_) { /* ignore */ }
+      } catch (err) {
+        console.warn('[useMatrix] logout error:', err);
+      }
       clientRef.current.stopClient();
       clientRef.current = null;
     }
@@ -129,7 +131,9 @@ export function useMatrix() {
       if (room) {
         const lastEvent = room.getLiveTimeline().getEvents().slice(-1)[0];
         if (lastEvent) {
-          clientRef.current.sendReadReceipt(lastEvent).catch(() => {});
+          clientRef.current.sendReadReceipt(lastEvent).catch((err) => {
+              console.warn('[useMatrix] sendReadReceipt error:', err);
+            });
         }
       }
     }
@@ -160,7 +164,9 @@ export function useMatrix() {
 
   const sendTyping = useCallback((roomId, isTyping) => {
     if (!clientRef.current) return;
-    clientRef.current.sendTyping(roomId, isTyping, 3000).catch(() => {});
+    clientRef.current.sendTyping(roomId, isTyping, 3000).catch((err) => {
+      console.warn('[useMatrix] sendTyping error:', err);
+    });
   }, []);
 
   const getUnreadCount = useCallback((room) => {
