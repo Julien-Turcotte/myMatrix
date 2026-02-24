@@ -23,8 +23,9 @@ export default function NewConversationDialog({ onClose, onCreate }) {
     e.preventDefault();
     const trimmed = value.trim();
     if (!trimmed) return;
-    if (mode === 'dm' && !/^@[a-z0-9._=-]+:[a-z0-9.:_-]+$/i.test(trimmed)) {
-      setError('User ID must be in format @user:server.com');
+    const dmUserId = mode === 'dm' ? (trimmed.startsWith('@') ? trimmed : `@${trimmed}`) : trimmed;
+    if (mode === 'dm' && !/^@[a-z0-9._=-]+:[a-z0-9.:_-]+$/i.test(dmUserId)) {
+      setError('User ID must be in format user:server.com');
       return;
     }
     setError('');
@@ -33,7 +34,7 @@ export default function NewConversationDialog({ onClose, onCreate }) {
       await onCreate({
         isDirect: mode === 'dm',
         name: mode === 'room' ? trimmed : undefined,
-        inviteUserId: mode === 'dm' ? trimmed : undefined,
+        inviteUserId: mode === 'dm' ? dmUserId : undefined,
       });
       onClose();
     } catch (err) {
@@ -95,7 +96,7 @@ export default function NewConversationDialog({ onClose, onCreate }) {
               type="text"
               value={value}
               onChange={e => { setValue(e.target.value); setError(''); }}
-              placeholder={mode === 'room' ? 'room name…' : 'user id, e.g. @user:server.com'}
+              placeholder={mode === 'room' ? 'room name…' : 'user:server.com'}
               autoComplete="off"
               spellCheck="false"
               disabled={loading}
