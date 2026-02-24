@@ -2,7 +2,7 @@ import { getUserColor } from '../utils/colors';
 
 const MAX_ROOM_NAME_LENGTH = 22;
 
-export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, syncState, getUnreadCount, userId, onNewConversation }) {
+export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom, onLogout, syncState, getUnreadCount, userId, onNewConversation }) {
   function getRoomName(room) {
     return room.name || room.roomId;
   }
@@ -63,21 +63,46 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLogout, s
           const unread = getUnreadCount(room);
           const isActive = room.roomId === activeRoomId;
           return (
-            <button
+            <div
               key={room.roomId}
               className={`sidebar-room ${isActive ? 'active' : ''}`}
-              onClick={() => onSelectRoom(room.roomId)}
               title={room.roomId}
             >
-              <span className="sidebar-room-prefix">{getRoomPrefix(room)}</span>
-              <span className="sidebar-room-name">{getDisplayName(room)}</span>
-              {unread > 0 && (
-                <span className="sidebar-badge">{unread > 99 ? '99+' : unread}</span>
+              <button
+                type="button"
+                className="sidebar-room-select"
+                onClick={() => onSelectRoom(room.roomId)}
+              >
+                <span className="sidebar-room-prefix">{getRoomPrefix(room)}</span>
+                <span className="sidebar-room-name">{getDisplayName(room)}</span>
+                {unread > 0 && (
+                  <span className="sidebar-badge">{unread > 99 ? '99+' : unread}</span>
+                )}
+                {idx < 9 && (
+                  <span className="sidebar-shortcut">alt+{idx + 1}</span>
+                )}
+              </button>
+              {onLeaveRoom && (
+                <button
+                  type="button"
+                  className="sidebar-room-leave"
+                  title="Leave room"
+                  aria-label="Leave room"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const label = getRoomName(room);
+                    if (window.confirm(`Leave "${label}"?`)) {
+                      try {
+                        await onLeaveRoom(room.roomId);
+                      } catch (err) {
+                        console.error('Failed to leave room', err);
+                        window.alert('Failed to leave room. Please try again.');
+                      }
+                    }
+                  }}
+                >×</button>
               )}
-              {idx < 9 && (
-                <span className="sidebar-shortcut">alt+{idx + 1}</span>
-              )}
-            </button>
+            </div>
           );
         })}
       </nav>
