@@ -687,7 +687,7 @@
 }
 
 .switcher-item:hover,
-.switcher-item-first {
+.switcher-item-active {
   background: #1a1d24;
   color: #cdd6f4;
 }
