@@ -1,8 +1,19 @@
+import { useState, useRef, useEffect } from 'react';
 import { getUserColor } from '../utils/colors';
 
 const MAX_ROOM_NAME_LENGTH = 22;
 
 export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom, onLogout, syncState, getUnreadCount, userId, onNewConversation }) {
+  const [pendingLeaveRoomId, setPendingLeaveRoomId] = useState(null);
+  const [confirmInput, setConfirmInput] = useState('');
+  const confirmRef = useRef(null);
+
+  useEffect(() => {
+    if (pendingLeaveRoomId) {
+      confirmRef.current?.focus();
+    }
+  }, [pendingLeaveRoomId]);
+
   function getRoomName(room) {
     return room.name || room.roomId;
   }
@@ -83,24 +94,55 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom
                 )}
               </button>
               {onLeaveRoom && (
-                <button
-                  type="button"
-                  className="sidebar-room-leave"
-                  title="Leave room"
-                  aria-label="Leave room"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    const label = getRoomName(room);
-                    if (window.confirm(`Leave "${label}"?`)) {
-                      try {
-                        await onLeaveRoom(room.roomId);
-                      } catch (err) {
-                        console.error('Failed to leave room', err);
-                        window.alert('Failed to leave room. Please try again.');
-                      }
-                    }
-                  }}
-                >×</button>
+                pendingLeaveRoomId === room.roomId ? (
+                  <span className="sidebar-room-confirm">
+                    <span className="sidebar-room-confirm-label">leave? [Y/n]&nbsp;</span>
+                    <input
+                      ref={confirmRef}
+                      className="sidebar-room-confirm-input"
+                      type="text"
+                      value={confirmInput}
+                      maxLength={1}
+                      onChange={e => setConfirmInput(e.target.value)}
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter') {
+                          const val = confirmInput.trim().toLowerCase();
+                          const confirmed = val === '' || val === 'y';
+                          setPendingLeaveRoomId(null);
+                          setConfirmInput('');
+                          if (confirmed) {
+                            try {
+                              await onLeaveRoom(room.roomId);
+                            } catch (err) {
+                              console.error('Failed to leave room', err);
+                            }
+                          }
+                        } else if (e.key === 'Escape') {
+                          setPendingLeaveRoomId(null);
+                          setConfirmInput('');
+                        }
+                      }}
+                      onBlur={() => {
+                        setPendingLeaveRoomId(null);
+                        setConfirmInput('');
+                      }}
+                      autoComplete="off"
+                      spellCheck="false"
+                    />
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="sidebar-room-leave"
+                    title="Leave room"
+                    aria-label="Leave room"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingLeaveRoomId(room.roomId);
+                      setConfirmInput('');
+                    }}
+                  >×</button>
+                )
               )}
             </div>
           );

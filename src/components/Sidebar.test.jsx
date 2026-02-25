@@ -136,26 +136,51 @@ describe('Sidebar', () => {
     expect(screen.getByLabelText('Leave room')).toBeInTheDocument();
   });
 
-  it('calls onLeaveRoom after confirming leave dialog', async () => {
+  it('calls onLeaveRoom after confirming leave with Y', async () => {
     const onLeaveRoom = vi.fn().mockResolvedValue();
     const user = userEvent.setup();
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     const rooms = [makeRoom('!r1:m.org', 'General')];
     render(<Sidebar {...defaultProps} rooms={rooms} onLeaveRoom={onLeaveRoom} />);
     await user.click(screen.getByLabelText('Leave room'));
+    const input = screen.getByRole('textbox', { hidden: true });
+    await user.type(input, 'y');
+    await user.keyboard('{Enter}');
     await waitFor(() => expect(onLeaveRoom).toHaveBeenCalledWith('!r1:m.org'));
-    vi.restoreAllMocks();
   });
 
-  it('does not call onLeaveRoom when confirm is cancelled', async () => {
-    const onLeaveRoom = vi.fn();
+  it('calls onLeaveRoom when pressing Enter with empty input (Y is default)', async () => {
+    const onLeaveRoom = vi.fn().mockResolvedValue();
     const user = userEvent.setup();
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
     const rooms = [makeRoom('!r1:m.org', 'General')];
     render(<Sidebar {...defaultProps} rooms={rooms} onLeaveRoom={onLeaveRoom} />);
     await user.click(screen.getByLabelText('Leave room'));
+    const input = screen.getByRole('textbox', { hidden: true });
+    await user.click(input);
+    await user.keyboard('{Enter}');
+    await waitFor(() => expect(onLeaveRoom).toHaveBeenCalledWith('!r1:m.org'));
+  });
+
+  it('does not call onLeaveRoom when confirm is cancelled with n', async () => {
+    const onLeaveRoom = vi.fn();
+    const user = userEvent.setup();
+    const rooms = [makeRoom('!r1:m.org', 'General')];
+    render(<Sidebar {...defaultProps} rooms={rooms} onLeaveRoom={onLeaveRoom} />);
+    await user.click(screen.getByLabelText('Leave room'));
+    const input = screen.getByRole('textbox', { hidden: true });
+    await user.type(input, 'n');
+    await user.keyboard('{Enter}');
     expect(onLeaveRoom).not.toHaveBeenCalled();
-    vi.restoreAllMocks();
+  });
+
+  it('does not call onLeaveRoom when confirm is cancelled with Escape', async () => {
+    const onLeaveRoom = vi.fn();
+    const user = userEvent.setup();
+    const rooms = [makeRoom('!r1:m.org', 'General')];
+    render(<Sidebar {...defaultProps} rooms={rooms} onLeaveRoom={onLeaveRoom} />);
+    await user.click(screen.getByLabelText('Leave room'));
+    const input = screen.getByRole('textbox', { hidden: true });
+    await user.type(input, '{Escape}');
+    expect(onLeaveRoom).not.toHaveBeenCalled();
   });
 
   it('uses @ prefix for DM rooms', () => {
