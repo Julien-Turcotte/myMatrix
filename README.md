@@ -56,6 +56,26 @@ npm run preview
 | `Ctrl + Enter`| Send message     |
 | `Esc`         | Clear input      |
 
+## Testing
+
+### Run tests once
+
+```bash
+npm run test
+```
+
+### Run tests in watch mode
+
+```bash
+npm run test:watch
+```
+
+### Run tests with coverage
+
+```bash
+npm run test:coverage
+```
+
 ## Linting
 
 ```bash
