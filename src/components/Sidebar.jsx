@@ -61,7 +61,7 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom
           type="button"
           className="sidebar-new-btn"
           onClick={onNewConversation}
-          title="New conversation"
+          title="New conversation (c)"
           aria-label="New conversation"
         >+</button>
       </div>
@@ -134,7 +134,7 @@ export default function Sidebar({ rooms, activeRoomId, onSelectRoom, onLeaveRoom
                   <button
                     type="button"
                     className="sidebar-room-leave"
-                    title="Leave room"
+                    title="Leave room (d)"
                     aria-label="Leave room"
                     onClick={(e) => {
                       e.stopPropagation();
