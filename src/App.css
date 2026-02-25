@@ -800,6 +800,64 @@
 }
 
 /* ═══════════════════════════════════════
+   WELCOME PANEL (neofetch-style)
+═══════════════════════════════════════ */
+.welcome-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.welcome-neofetch {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+}
+
+.welcome-logo {
+  color: #1793D1;
+  white-space: pre;
+  line-height: 1.5;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.welcome-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.welcome-info-line {
+  white-space: nowrap;
+}
+
+.welcome-info-label {
+  color: #1793D1;
+  font-weight: bold;
+}
+
+.welcome-info-sep {
+  color: #585b70;
+}
+
+.welcome-colors {
+  display: flex;
+  gap: 0.15rem;
+  margin-top: 0.6rem;
+}
+
+.welcome-color-block {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ═══════════════════════════════════════
    NEW CONVERSATION DIALOG
 ═══════════════════════════════════════ */
 .new-conv-tabs {

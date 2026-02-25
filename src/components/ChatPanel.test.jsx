@@ -20,11 +20,12 @@ function makeRoom(overrides = {}) {
 }
 
 describe('ChatPanel', () => {
-  it('shows "no room selected" when room is null', () => {
+  it('shows neofetch-style welcome panel when room is null', () => {
     render(
-      <ChatPanel room={null} messages={{}} typingUsers={{}} currentUserId="@alice:matrix.org" isEncrypted={false} />
+      <ChatPanel room={null} messages={{}} typingUsers={{}} currentUserId="@alice:matrix.org" isEncrypted={false} rooms={[]} />
     );
-    expect(screen.getByText('// no room selected')).toBeInTheDocument();
+    expect(document.querySelector('.welcome-panel')).toBeInTheDocument();
+    expect(screen.getByText('alice@matrix.org')).toBeInTheDocument();
   });
 
   it('renders the room name in the header', () => {
