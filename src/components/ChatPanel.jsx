@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { getUserColor, formatTimestamp } from '../utils/colors';
+import WelcomePanel from './WelcomePanel';
 
 function MessageLine({ msg, currentUserId }) {
   const isOwn = msg.sender === currentUserId;
@@ -78,7 +79,7 @@ function MessageLine({ msg, currentUserId }) {
   );
 }
 
-export default function ChatPanel({ room, messages, typingUsers, currentUserId, isEncrypted }) {
+export default function ChatPanel({ room, messages, typingUsers, currentUserId, isEncrypted, rooms = [] }) {
   const bottomRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -87,15 +88,7 @@ export default function ChatPanel({ room, messages, typingUsers, currentUserId, 
   }, [messages]);
 
   if (!room) {
-    return (
-      <div className="chat-panel chat-empty">
-        <div className="chat-empty-text">
-          <div>// no room selected</div>
-          <div className="dim">use Ctrl+K to open room switcher</div>
-          <div className="dim">or click a room in the sidebar</div>
-        </div>
-      </div>
-    );
+    return <WelcomePanel currentUserId={currentUserId} rooms={rooms} />;
   }
 
   const roomMessages = messages[room.roomId] || [];

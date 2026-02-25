@@ -35,9 +35,10 @@ describe('MainLayout', () => {
     expect(document.querySelector('.main-content')).toBeInTheDocument();
   });
 
-  it('shows "no room selected" in chat panel when no active room', () => {
+  it('shows neofetch welcome panel in chat area when no active room', () => {
     render(<MainLayout {...baseProps} />);
-    expect(screen.getByText('// no room selected')).toBeInTheDocument();
+    expect(document.querySelector('.welcome-panel')).toBeInTheDocument();
+    expect(screen.getByText('alice@matrix.org')).toBeInTheDocument();
   });
 
   it('calls onSelectRoom when room is selected from sidebar', async () => {

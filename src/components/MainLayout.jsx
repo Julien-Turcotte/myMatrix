@@ -105,6 +105,7 @@ export default function MainLayout({
           typingUsers={typingUsers}
           currentUserId={userId}
           isEncrypted={isEncrypted}
+          rooms={rooms}
         />
 
         <MessageInput
