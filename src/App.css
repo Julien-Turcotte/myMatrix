@@ -398,6 +398,30 @@
   color: #f38ba8;
 }
 
+.sidebar-room-confirm {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: #f38ba8;
+}
+
+.sidebar-room-confirm-label {
+  white-space: nowrap;
+}
+
+.sidebar-room-confirm-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f38ba8;
+  color: #cdd6f4;
+  font-family: inherit;
+  font-size: 0.75rem;
+  width: 1.2rem;
+  outline: none;
+  padding: 0;
+}
+
 .sidebar-badge {
   background: #f38ba8;
   color: #0d0f12;
