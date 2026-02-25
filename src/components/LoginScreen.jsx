@@ -10,11 +10,26 @@ export default function LoginScreen({ onLogin, error }) {
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState('');
 
+  function isValidUrl(url) {
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+    } catch {
+      return false;
+    }
+  }
+
+  function isValidMatrixUserId(id) {
+    return /^@[^@:]+:[^@:]+$/.test(id);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setLocalError('');
     if (!baseUrl) { setLocalError('Homeserver URL required'); return; }
+    if (!isValidUrl(baseUrl)) { setLocalError('Homeserver URL must be a valid http or https URL'); return; }
     if (!userId) { setLocalError('User ID required'); return; }
+    if (!isValidMatrixUserId(userId)) { setLocalError('User ID must be in the format @user:homeserver'); return; }
     if (mode === 'password' && !password) { setLocalError('Password required'); return; }
     if (mode === 'token' && !accessToken) { setLocalError('Access token required'); return; }
 

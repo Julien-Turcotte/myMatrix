@@ -46,11 +46,30 @@ describe('LoginScreen', () => {
     expect(screen.getByText('Homeserver URL required')).toBeInTheDocument();
   });
 
+  it('shows error when homeserver URL is not a valid URL', async () => {
+    const user = userEvent.setup();
+    render(<LoginScreen onLogin={vi.fn()} />);
+    const urlInput = screen.getByPlaceholderText('https://matrix.org');
+    await user.clear(urlInput);
+    await user.type(urlInput, 'not-a-url');
+    await user.type(screen.getByPlaceholderText('@user:matrix.org'), '@alice:matrix.org');
+    await user.click(screen.getByText('[ connect ]'));
+    expect(screen.getByText('Homeserver URL must be a valid http or https URL')).toBeInTheDocument();
+  });
+
   it('shows error when user ID is missing', async () => {
     const user = userEvent.setup();
     render(<LoginScreen onLogin={vi.fn()} />);
     await user.click(screen.getByText('[ connect ]'));
     expect(screen.getByText('User ID required')).toBeInTheDocument();
+  });
+
+  it('shows error when user ID is not a valid Matrix ID', async () => {
+    const user = userEvent.setup();
+    render(<LoginScreen onLogin={vi.fn()} />);
+    await user.type(screen.getByPlaceholderText('@user:matrix.org'), 'alice');
+    await user.click(screen.getByText('[ connect ]'));
+    expect(screen.getByText('User ID must be in the format @user:homeserver')).toBeInTheDocument();
   });
 
   it('shows error when password is missing in password mode', async () => {
