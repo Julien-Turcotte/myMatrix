@@ -129,4 +129,81 @@ describe('MainLayout', () => {
     );
     expect(screen.getByText('E2EE')).toBeInTheDocument();
   });
+
+  it('opens new conversation dialog on c key when no input is focused', () => {
+    render(<MainLayout {...baseProps} />);
+    fireEvent.keyDown(window, { key: 'c' });
+    expect(screen.getByText('// new conversation')).toBeInTheDocument();
+  });
+
+  it('does not open new conversation on c key when an input is focused', () => {
+    render(<MainLayout {...baseProps} activeRoomId="!r1:m.org" />);
+    const input = document.querySelector('.message-input');
+    fireEvent.focus(input);
+    fireEvent.keyDown(window, { key: 'c' });
+    expect(screen.queryByText('// new conversation')).not.toBeInTheDocument();
+  });
+
+  it('shows leave confirm dialog on d key with active room', () => {
+    render(<MainLayout {...baseProps} activeRoomId="!r1:m.org" />);
+    document.activeElement?.blur();
+    fireEvent.keyDown(window, { key: 'd' });
+    expect(screen.getByText('// leave room?')).toBeInTheDocument();
+  });
+
+  it('does not show leave confirm on d key without active room', () => {
+    render(<MainLayout {...baseProps} activeRoomId={null} />);
+    document.activeElement?.blur();
+    fireEvent.keyDown(window, { key: 'd' });
+    expect(screen.queryByText('// leave room?')).not.toBeInTheDocument();
+  });
+
+  it('calls onLeaveRoom after confirming leave with Enter (default Y)', async () => {
+    const onLeaveRoom = vi.fn().mockResolvedValue();
+    const user = userEvent.setup();
+    render(<MainLayout {...baseProps} activeRoomId="!r1:m.org" onLeaveRoom={onLeaveRoom} />);
+    document.activeElement?.blur();
+    fireEvent.keyDown(window, { key: 'd' });
+    expect(screen.getByText('// leave room?')).toBeInTheDocument();
+    const confirmInput = document.querySelector('.sidebar-room-confirm-input');
+    await user.click(confirmInput);
+    await user.keyboard('{Enter}');
+    await waitFor(() => expect(onLeaveRoom).toHaveBeenCalledWith('!r1:m.org'));
+  });
+
+  it('calls onLeaveRoom after confirming leave with y + Enter', async () => {
+    const onLeaveRoom = vi.fn().mockResolvedValue();
+    const user = userEvent.setup();
+    render(<MainLayout {...baseProps} activeRoomId="!r1:m.org" onLeaveRoom={onLeaveRoom} />);
+    document.activeElement?.blur();
+    fireEvent.keyDown(window, { key: 'd' });
+    const confirmInput = document.querySelector('.sidebar-room-confirm-input');
+    await user.click(confirmInput);
+    await user.type(confirmInput, 'y');
+    await user.keyboard('{Enter}');
+    await waitFor(() => expect(onLeaveRoom).toHaveBeenCalledWith('!r1:m.org'));
+  });
+
+  it('does not call onLeaveRoom when leave is cancelled with n + Enter', async () => {
+    const onLeaveRoom = vi.fn();
+    const user = userEvent.setup();
+    render(<MainLayout {...baseProps} activeRoomId="!r1:m.org" onLeaveRoom={onLeaveRoom} />);
+    document.activeElement?.blur();
+    fireEvent.keyDown(window, { key: 'd' });
+    const confirmInput = document.querySelector('.sidebar-room-confirm-input');
+    await user.click(confirmInput);
+    await user.type(confirmInput, 'n');
+    await user.keyboard('{Enter}');
+    expect(onLeaveRoom).not.toHaveBeenCalled();
+    expect(screen.queryByText('// leave room?')).not.toBeInTheDocument();
+  });
+
+  it('closes leave confirm dialog on Escape', async () => {
+    render(<MainLayout {...baseProps} activeRoomId="!r1:m.org" />);
+    document.activeElement?.blur();
+    fireEvent.keyDown(window, { key: 'd' });
+    expect(screen.getByText('// leave room?')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByText('// leave room?')).not.toBeInTheDocument();
+  });
 });
