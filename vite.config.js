@@ -17,5 +17,16 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['matrix-js-sdk'],
-  }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/main.jsx', 'src/test/**'],
+    },
+  },
 })
